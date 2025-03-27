@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Enrollment Trends (2005–2023)</title>
+  <title>Enrollment Trends (2005–2023) with Company Event Highlights</title>
   
-  <!-- Load Chart.js -->
+  <!-- Load Chart.js and its Annotation plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Load the Chart.js Annotation Plugin -->
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
   
   <style>
     /* Basic reset and styling */
@@ -18,61 +17,74 @@
     }
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      padding: 10px;
       line-height: 1.6;
+      background: #2e2e2e; /* Dark background */
+      color: #fff;         /* White text */
     }
-    h1, h2, h3, p {
+    h1, h2 {
       text-align: center;
       margin-bottom: 15px;
-    }
-    #filterButtons {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    #filterButtons button {
-      background: #007BFF;
       color: #fff;
-      border: none;
-      padding: 8px 12px;
-      margin: 5px;
-      border-radius: 4px;
-      cursor: pointer;
     }
-    #filterButtons button:hover {
-      background: #0056b3;
+    /* Container for the ranking chart (bump chart) */
+    #rankingChartContainer {
+      position: relative;
+      width: 85%;
+      margin: 20px auto;
+      background: #2e2e2e;
+      border: 1px solid #444;
     }
+    /* Canvas styling */
     canvas {
       display: block;
-      margin: 20px auto;
-      background: #f5f5f5;
-      border: 1px solid #ccc;
+      width: 100% !important;
+      height: auto !important;
+    }
+    /* Button overlay container (positioned on the right side) */
+    #rankingButtonOverlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 180px;
+      max-height: 100%;
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    /* Button styling */
+    .course-button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 5px;
+      border: none;
+      background: #444;
+      color: #fff;
+      cursor: pointer;
+      text-align: left;
+      font-size: 12px;
+      border-radius: 4px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .course-button:hover {
+      background: #666;
     }
   </style>
 </head>
 <body>
   <h1>Enrollment Trends (2005–2023)</h1>
   
-  <!-- All Courses Chart Section -->
+  <!-- 1) All Courses Enrollment Chart (optional) -->
   <h2>All Courses Enrollment Trends</h2>
-  <canvas id="allChart" width="1200" height="600"></canvas>
+  <canvas id="allChart"></canvas>
   
-  <!-- Selected Courses Chart Section -->
-  <h2>Selected Courses Enrollment Trends</h2>
-  <!-- The paragraph with selected courses has been removed. -->
-
-  <div id="filterButtons">
-    <button onclick="filterSelectedChart('All')">All</button>
-    <button onclick="filterSelectedChart('Engineering Sciences')">Engineering Sciences</button>
-    <button onclick="filterSelectedChart('Humanities & Social Sciences')">Humanities & Social Sciences</button>
-    <button onclick="filterSelectedChart('Natural, Physical & Mathematical Sciences')">Natural, Physical & Mathematical Sciences</button>
-    <button onclick="filterSelectedChart('Business & Administration')">Business & Administration</button>
-    <button onclick="filterSelectedChart('Accountancy')">Accountancy</button>
-    <button onclick="filterSelectedChart('Information Technology')">Information Technology</button>
-    <button onclick="filterSelectedChart('Architecture, Building & Real Estate')">Architecture, Building & Real Estate</button>
-    <button onclick="filterSelectedChart('Health Sciences')">Health Sciences</button>
-    <button onclick="filterSelectedChart('Education')">Education</button>
+  <!-- 2) Ranking Chart (Bump Chart) with Button Overlay -->
+  <h2>All Courses Ranking Chart (2005–2023)</h2>
+  <div id="rankingChartContainer">
+    <canvas id="rankingChart"></canvas>
+    <div id="rankingButtonOverlay"></div>
   </div>
-  <canvas id="selectedChart" width="1200" height="600"></canvas>
 
   <script>
     /******************************************************
@@ -102,70 +114,97 @@
       "Services": [282,398,528,611,609,1544,2182,2642,2794,1837,1921,1704,1745,1745,1728,1978,2194,2306,2666]
     };
 
-    // Subset for selected chart
-    const enrollmentDataSelected = {
-      "Engineering Sciences": enrollmentDataAll["Engineering Sciences"],
-      "Humanities & Social Sciences": enrollmentDataAll["Humanities & Social Sciences"],
-      "Natural, Physical & Mathematical Sciences": enrollmentDataAll["Natural, Physical & Mathematical Sciences"],
-      "Business & Administration": enrollmentDataAll["Business & Administration"],
-      "Accountancy": enrollmentDataAll["Accountancy"],
-      "Information Technology": enrollmentDataAll["Information Technology"],
-      "Architecture, Building & Real Estate": enrollmentDataAll["Architecture, Building & Real Estate"],
-      "Health Sciences": enrollmentDataAll["Health Sciences"],
-      "Education": enrollmentDataAll["Education"]
-    };
-
-    // Policy data used for highlighting in the chart
-    const policiesByField = {
-      "Engineering Sciences": [
-        { year: 2001, policy: "Engineering Accreditation Board" },
-        { year: 2016, policy: "Research, Innovation and Enterprise Plan 2020" },
-        { year: 2014, policy: "Smart Nation Initiative" },
-        { year: 2024, policy: "Smart Nation 2.0" }
-      ],
-      "Humanities & Social Sciences": [
-        { year: 2016, policy: "Social Science Research Council (SSRC) Initiative" },
-        { year: 2019, policy: "Singapore Bicentennial Initiative" }
-      ],
-      "Natural, Physical & Mathematical Sciences": [
-        { year: 2000, policy: "National Science and Technology Plan" },
-        { year: 2007, policy: "Research Centres of Excellence (RCE) Initiative" },
-        { year: 2016, policy: "Research, Innovation and Enterprise Plan 2020" }
-      ],
-      "Business & Administration": [
-        { year: 2002, policy: "Global Schoolhouse Initiative" },
-        { year: 2015, policy: "SkillsFuture Initiative" }
-      ],
+    // Big-company event highlights per industry (all data restored)
+    const industryHighlights = {
       "Accountancy": [
-        { year: 2013, policy: "Singapore Qualification Programme (Singapore QP)" },
-        { year: 2016, policy: "SkillsFuture Study Award (Accountancy Sector)" }
-      ],
-      "Information Technology": [
-        { year: 2006, policy: "Intelligent Nation 2015 (iN2015) Masterplan" },
-        { year: 2014, policy: "Smart Nation Initiative" },
-        { year: 2024, policy: "Smart Nation 2.0" },
-        { year: 2018, policy: "Digital Economy Framework for Action" }
+        { year: "2006", company: "Intuit (QuickBooks Online)" },
+        { year: "2015", company: "AppZen (AI-driven invoice/fraud)" },
+        { year: "2018", company: "UiPath (RPA)" },
+        { year: "2015", company: "Microsoft (Power BI)" }
       ],
       "Architecture, Building & Real Estate": [
-        { year: 2005, policy: "Green Mark Scheme" },
-        { year: 2017, policy: "Construction Industry Transformation Map" },
-        { year: 2022, policy: "Built Environment Industry Transformation Map 2025" }
+        { year: "2002", company: "Autodesk (BIM via Revit)" },
+        { year: "2015", company: "Winsun (3D printing)" },
+        { year: "2018", company: "Siemens (Smart buildings)" },
+        { year: "2000", company: "LafargeHolcim (Green materials)" }
       ],
-      "Health Sciences": [
-        { year: 2000, policy: "Biomedical Sciences Initiative (Phase I)" },
-        { year: 2006, policy: "Biomedical Sciences Initiative (Phase II)" },
-        { year: 2017, policy: "Healthcare Industry Transformation Map" },
-        { year: 2017, policy: "National Precision Medicine Strategy" }
+      "Business & Administration": [
+        { year: "2008", company: "SAP (Cloud ERP)" },
+        { year: "2020", company: "Zoom (Remote/hybrid work)" },
+        { year: "2005", company: "Salesforce (CRM)" },
+        { year: "2018", company: "Automation Anywhere (RPA)" }
+      ],
+      "Dentistry": [
+        { year: "2005", company: "Dentsply Sirona (Digital dentistry)" },
+        { year: "2015", company: "3D Systems (Dental 3D printing)" },
+        { year: "2020", company: "SmileDirectClub (Teledentistry)" },
+        { year: "2018", company: "Pearl (AI imaging)" }
       ],
       "Education": [
-        { year: 2005, policy: "Teach Less, Learn More Initiative" },
-        { year: 2015, policy: "SkillsFuture Initiative" },
-        { year: 2019, policy: "National Institute of Early Childhood Development" }
+        { year: "2008", company: "Coursera (MOOCs)" },
+        { year: "2012", company: "Knewton (Adaptive learning)" },
+        { year: "2015", company: "Google (VR/AR in classrooms)" },
+        { year: "2014", company: "Duolingo (Gamification)" }
+      ],
+      "Engineering Sciences": [
+        { year: "2012", company: "DJI (Drones for site surveys)" },
+        { year: "2015", company: "BASF (Self-healing materials)" },
+        { year: "2018", company: "Siemens (Digital twins)" },
+        { year: "2015", company: "Honeywell (IoT sensors)" }
+      ],
+      "Fine & Applied Arts": [
+        { year: "2005", company: "Adobe (Creative Suite)" },
+        { year: "2015", company: "Stratasys (3D printing & sculpture)" },
+        { year: "2021", company: "OpenSea (NFT marketplace)" },
+        { year: "2016", company: "Obscura Digital (Projection mapping)" }
+      ],
+      "Health Sciences": [
+        { year: "2015", company: "Apple (Wearable health trackers)" },
+        { year: "2020", company: "Teladoc (Telemedicine)" },
+        { year: "2012", company: "CRISPR Therapeutics (Gene editing)" },
+        { year: "2018", company: "Atomwise (AI drug discovery)" }
+      ],
+      "Humanities & Social Sciences": [
+        { year: "2005", company: "Google (Google Books)" },
+        { year: "2015", company: "Brandwatch (Social media analysis)" },
+        { year: "2014", company: "Zooniverse (Citizen science)" },
+        { year: "2015", company: "IBM (NLP content analysis)" }
+      ],
+      "Information Technology": [
+        { year: "2006", company: "Amazon (AWS – cloud computing)" },
+        { year: "2022", company: "OpenAI (AI & ChatGPT)" },
+        { year: "2018", company: "Qualcomm (5G networks)" },
+        { year: "2015", company: "Ethereum (Blockchain)" }
+      ],
+      "Law": [
+        { year: "2015", company: "ROSS Intelligence (AI legal research)" },
+        { year: "2015", company: "Relativity (E-discovery)" },
+        { year: "2020", company: "Modria (Online dispute resolution)" },
+        { year: "2008", company: "DocuSign (E-signatures)" }
+      ],
+      "Mass Communication": [
+        { year: "2004", company: "Facebook (Social media)" },
+        { year: "2013", company: "Twitch (Live streaming)" },
+        { year: "2005", company: "Apple (Podcasts)" },
+        { year: "2015", company: "Netflix (Content personalization)" }
+      ],
+      "Medicine": [],
+      "Natural, Physical & Mathematical Sciences": [
+        { year: "2015", company: "LIGO (Gravitational wave detection)" },
+        { year: "2019", company: "EHT (Black hole image)" },
+        { year: "2012", company: "CRISPR Therapeutics (CRISPR editing)" },
+        { year: "2018", company: "IBM (AI weather forecasting)" }
+      ],
+      "Services": [
+        { year: "2009", company: "Uber (On-demand platforms)" },
+        { year: "2020", company: "LivePerson (AI chatbots)" },
+        { year: "2016", company: "Amazon (Amazon Go)" },
+        { year: "2018", company: "Savioke (Robotics in hospitality)" }
       ]
     };
 
     /******************************************************
-     * 2) Create All Courses Chart (Top)
+     * 4) Create All Courses Enrollment Chart (optional)
      ******************************************************/
     function createAllChart() {
       const colorsAll = [
@@ -191,23 +230,23 @@
         options: {
           responsive: true,
           plugins: {
-            title: {
-              display: true,
-              text: "All Courses Enrollment Trends (2005–2023)"
-            },
+            legend: { position: 'right', labels: { color: '#fff' } },
+            title: { display: true, text: "All Courses Enrollment Trends (2005–2023)", color: '#fff' },
             tooltip: {
-              callbacks: {
-                label: context => `${context.dataset.label} - ${context.label}: ${context.parsed.y}`
-              }
+              callbacks: { label: context => `${context.dataset.label} - ${context.label}: ${context.parsed.y}` }
             }
           },
           scales: {
             y: {
               beginAtZero: true,
-              title: { display: true, text: "Enrollment" }
+              title: { display: true, text: "Enrollment", color: '#fff' },
+              ticks: { color: '#fff' },
+              grid: { color: '#666' }
             },
             x: {
-              title: { display: true, text: "Year" }
+              title: { display: true, text: "Year", color: '#fff' },
+              ticks: { color: '#fff' },
+              grid: { color: '#666' }
             }
           }
         }
@@ -215,54 +254,78 @@
     }
 
     /******************************************************
-     * 3) Create Selected Courses Chart (Bottom)
+     * 5) Create Ranking Chart (Bump Chart)
      ******************************************************/
-    const colorsSelected = [
-      "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231",
-      "#911eb4", "#42d4f4", "#f032e6", "#bfef45"
-    ];
-    let fullSelectedDatasets = Object.keys(enrollmentDataSelected).map((course, i) => ({
-      label: course,
-      data: enrollmentDataSelected[course],
-      borderColor: colorsSelected[i % colorsSelected.length],
-      backgroundColor: colorsSelected[i % colorsSelected.length],
-      fill: false,
-      tension: 0.1
-    }));
-
-    function createSelectedChart() {
-      const ctxSelected = document.getElementById("selectedChart").getContext("2d");
-      window.selectedChart = new Chart(ctxSelected, {
+    function createRankingChart() {
+      // Convert enrollment data to rank data
+      const courses = Object.keys(enrollmentDataAll);
+      const rankData = {};
+      courses.forEach(course => {
+        rankData[course] = new Array(labels.length).fill(null);
+      });
+      labels.forEach((year, yearIndex) => {
+        // Sort courses by descending enrollment
+        const yearEnrollments = courses.map(course => ({
+          course,
+          enrollment: enrollmentDataAll[course][yearIndex] || 0
+        }));
+        yearEnrollments.sort((a, b) => b.enrollment - a.enrollment);
+        yearEnrollments.forEach((item, rankPos) => {
+          rankData[item.course][yearIndex] = rankPos + 1; // rank is 1-based
+        });
+      });
+      // Color palette for bump chart lines
+      const colorsAll = [
+        "#ffffff", "#b2b2b2", "#f48fb1", "#90caf9", "#fff59d",
+        "#a5d6a7", "#ffab91", "#ffd54f", "#80cbc4", "#ce93d8",
+        "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231"
+      ];
+      // Build datasets
+      const rankingDatasets = Object.keys(rankData).map((course, i) => ({
+        label: course,
+        data: rankData[course],
+        borderColor: colorsAll[i % colorsAll.length],
+        backgroundColor: colorsAll[i % colorsAll.length],
+        fill: false,
+        tension: 0,
+        pointRadius: 8,
+        pointHoverRadius: 10,
+        borderWidth: 3
+      }));
+      const ctxRanking = document.getElementById("rankingChart").getContext("2d");
+      // Create the chart with empty annotations initially
+      rankingChart = new Chart(ctxRanking, {
         type: "line",
         data: {
           labels: labels,
-          datasets: fullSelectedDatasets
+          datasets: rankingDatasets
         },
         options: {
           responsive: true,
+          layout: { padding: { right: 300 } },
           plugins: {
-            title: {
-              display: true,
-              text: "Selected Courses Enrollment Trends (2005–2023)"
-            },
+            legend: { display: false },
+            title: { display: true, text: "All Courses Ranking (2005–2023)", color: '#fff' },
             tooltip: {
-              callbacks: {
-                label: context => `${context.dataset.label} - ${context.label}: ${context.parsed.y}`
-              }
+              callbacks: { label: context => `${context.dataset.label} - ${context.label}: Rank ${context.parsed.y}` }
             },
             annotation: {
-              annotations: {}
+              annotations: {} // Start empty; update via buildAnnotations()
             }
           },
           scales: {
             y: {
-              beginAtZero: true,
               min: 0,
-              max: 40000,
-              title: { display: true, text: "Enrollment" }
+              max: courses.length + 1,
+              reverse: true,
+              ticks: { stepSize: 1, color: '#fff', font: { size: 14 } },
+              grid: { display: false },
+              border: { display: false }
             },
             x: {
-              title: { display: true, text: "Year" }
+              ticks: { color: '#fff', font: { size: 14 } },
+              grid: { display: false },
+              border: { display: false }
             }
           }
         }
@@ -270,72 +333,93 @@
     }
 
     /******************************************************
-     * 4) Filter Function for the Selected Chart
+     * 6) Build Annotations for the Visible Dataset
+     *    Annotations display "Year: CompanyName" on the highlight bar.
      ******************************************************/
-    function filterSelectedChart(courseName) {
-      // Filter the datasets based on the selected course
-      if (courseName === "All") {
-        window.selectedChart.data.datasets = fullSelectedDatasets;
-      } else {
-        window.selectedChart.data.datasets = fullSelectedDatasets.filter(ds => ds.label === courseName);
-      }
-      
-      // Build new annotation objects based on the displayed courses
-      const newAnnotations = {};
-      let annotationIndex = 1;
-
-      // For each displayed course (dataset), find the relevant policies and add a highlight
-      window.selectedChart.data.datasets.forEach(ds => {
-        const fieldName = ds.label;
-        if (policiesByField[fieldName]) {
-          policiesByField[fieldName].forEach(policyObj => {
-            const y = policyObj.year;
-            // Only highlight if the policy's year is within our chart range (2005–2023)
-            if (y >= 2005 && y <= 2023) {
-              // Find the index of the year in our labels array
-              const yearIndex = labels.indexOf(y);
-              if (yearIndex !== -1) {
-                // Create a "box" annotation around this index
-                newAnnotations["anno" + annotationIndex] = {
-                  type: 'box',
-                  xMin: yearIndex - 0.4,
-                  xMax: yearIndex + 0.4,
-                  yMin: 0,
-                  yMax: 40000,
-                  backgroundColor: 'rgba(128,128,128,0.2)', // grey with low opacity
-                  borderWidth: 0,
-                  label: {
-                    display: true,
-                    content: policyObj.policy,
-                    position: 'center',
-                    rotation: -90, // or 0 if you want horizontal text
-                    color: 'black',
-                    backgroundColor: 'rgba(255,255,255,0.7)',
-                    font: {
-                      size: 12,
-                      style: 'italic'
-                    }
-                  }
-                };
-                annotationIndex++;
+    function buildAnnotations() {
+      if (!rankingChart) return {};
+      let newAnnotations = {};
+      let annotationIndex = 0;
+      const visibleDatasets = rankingChart.data.datasets.filter((ds, i) => rankingChart.isDatasetVisible(i));
+      if (visibleDatasets.length !== 1) return newAnnotations;
+      const dataset = visibleDatasets[0];
+      const industryName = dataset.label;
+      const events = industryHighlights[industryName];
+      if (!events) return newAnnotations;
+      events.forEach(eventObj => {
+        const eventYear = parseInt(eventObj.year);
+        if (eventYear >= 2005 && eventYear <= 2023) {
+          const yearIndex = labels.indexOf(eventYear);
+          if (yearIndex !== -1) {
+            // Create label as "Year: CompanyName"
+            const labelContent = `${eventYear}: ${eventObj.company}`;
+            newAnnotations["anno" + annotationIndex] = {
+              type: 'box',
+              xMin: yearIndex - 0.4,
+              xMax: yearIndex + 0.4,
+              yMin: 0,
+              yMax: 40000, // Adjust based on your chart's Y range
+              backgroundColor: 'rgba(128,128,128,0.2)',
+              borderWidth: 0,
+              label: {
+                display: true,
+                content: labelContent,
+                position: 'center',
+                rotation: -90,
+                color: 'black',
+                backgroundColor: 'rgba(255,255,255,0.7)',
+                font: { size: 12, style: 'italic' }
               }
-            }
-          });
+            };
+            annotationIndex++;
+          }
         }
       });
-
-      // Update the annotation plugin config
-      window.selectedChart.config.options.plugins.annotation.annotations = newAnnotations;
-      
-      // Update the chart
-      window.selectedChart.update();
+      return newAnnotations;
     }
 
     /******************************************************
-     * 5) Create Both Charts on Page Load
+     * 7) Create Button Overlay for Filtering Courses
+     ******************************************************/
+    function updateButtons() {
+      const overlay = document.getElementById("rankingButtonOverlay");
+      overlay.innerHTML = "";
+      // "All Courses" button
+      const allBtn = document.createElement("button");
+      allBtn.className = "course-button";
+      allBtn.textContent = "All Courses";
+      allBtn.style.backgroundColor = "#2196F3";
+      allBtn.onclick = () => {
+        rankingChart.data.datasets.forEach((_, i) => { rankingChart.setDatasetVisibility(i, true); });
+        rankingChart.options.plugins.annotation.annotations = {};
+        rankingChart.update();
+        Array.from(overlay.children).forEach(btn => btn.style.backgroundColor = "#444");
+        allBtn.style.backgroundColor = "#2196F3";
+      };
+      overlay.appendChild(allBtn);
+      // One button per course
+      rankingChart.data.datasets.forEach((dataset, index) => {
+        const btn = document.createElement("button");
+        btn.className = "course-button";
+        btn.textContent = dataset.label;
+        btn.style.backgroundColor = "#444";
+        btn.onclick = () => {
+          rankingChart.data.datasets.forEach((_, i) => { rankingChart.setDatasetVisibility(i, i === index); });
+          rankingChart.options.plugins.annotation.annotations = buildAnnotations();
+          rankingChart.update();
+          Array.from(overlay.children).forEach(b => b.style.backgroundColor = "#444");
+          btn.style.backgroundColor = dataset.borderColor;
+        };
+        overlay.appendChild(btn);
+      });
+    }
+
+    /******************************************************
+     * 8) Build Both Charts on Page Load
      ******************************************************/
     createAllChart();
-    createSelectedChart();
+    createRankingChart();
+    updateButtons();
   </script>
 </body>
 </html>
