@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Enrollment Trends (2005–2023)</title>
+  
+  <!-- Load Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Load the Chart.js Annotation Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1"></script>
+  
+  <style>
+    /* Basic reset and styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1, h2, h3, p {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    #filterButtons {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #filterButtons button {
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #filterButtons button:hover {
+      background: #0056b3;
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Enrollment Trends (2005–2023)</h1>
+  
+  <!-- All Courses Chart Section -->
+  <h2>All Courses Enrollment Trends</h2>
+  <canvas id="allChart" width="1200" height="600"></canvas>
+  
+  <!-- Selected Courses Chart Section -->
+  <h2>Selected Courses Enrollment Trends</h2>
+  <!-- The paragraph with selected courses has been removed. -->
+
+  <div id="filterButtons">
+    <button onclick="filterSelectedChart('All')">All</button>
+    <button onclick="filterSelectedChart('Engineering Sciences')">Engineering Sciences</button>
+    <button onclick="filterSelectedChart('Humanities & Social Sciences')">Humanities & Social Sciences</button>
+    <button onclick="filterSelectedChart('Natural, Physical & Mathematical Sciences')">Natural, Physical & Mathematical Sciences</button>
+    <button onclick="filterSelectedChart('Business & Administration')">Business & Administration</button>
+    <button onclick="filterSelectedChart('Accountancy')">Accountancy</button>
+    <button onclick="filterSelectedChart('Information Technology')">Information Technology</button>
+    <button onclick="filterSelectedChart('Architecture, Building & Real Estate')">Architecture, Building & Real Estate</button>
+    <button onclick="filterSelectedChart('Health Sciences')">Health Sciences</button>
+    <button onclick="filterSelectedChart('Education')">Education</button>
+  </div>
+  <canvas id="selectedChart" width="1200" height="600"></canvas>
+
+  <script>
+    /******************************************************
+     * 1) Data Arrays and Setup
+     ******************************************************/
+    const labels = [
+      2005,2006,2007,2008,2009,2010,
+      2011,2012,2013,2014,2015,2016,
+      2017,2018,2019,2020,2021,2022,2023
+    ];
+
+    const enrollmentDataAll = {
+      "Accountancy": [6900,7266,8021,8109,8867,9148,9179,9837,9955,10970,11299,12199,12534,12288,12390,12144,11785,11159,10734],
+      "Architecture, Building & Real Estate": [2856,3273,3644,3806,3820,4045,4425,4196,4291,4649,4733,4589,4537,4781,4775,4677,4525,3969,3761],
+      "Business & Administration": [12711,13662,14117,14171,13659,13928,14085,14384,14838,15464,17024,17866,19255,21712,24094,26690,28766,30024,29382],
+      "Dentistry": [304,340,362,373,410,437,446,467,491,515,524,539,531,544,557,635,714,697,775],
+      "Education": [0,0,0,0,0,0,4452,4546,3784,3308,2953,2442,1915,1912,1689,1864,1948,1783,1844],
+      "Engineering Sciences": [31724,31431,31475,28273,29204,29841,30721,31596,32849,33430,33680,33714,34486,34868,35458,35794,35869,35746,36956],
+      "Fine & Applied Arts": [866,1298,1639,1844,2145,2544,2694,3220,3540,3933,3896,4032,4007,3939,3854,3764,3595,3462,3661],
+      "Health Sciences": [1264,1651,1981,2196,2577,2743,3038,3544,4127,4239,4513,5434,6482,7254,8205,8827,9511,9760,10500],
+      "Humanities & Social Sciences": [18318,20256,22441,24315,26711,26691,24501,24926,27408,28103,28961,30691,31247,32316,32849,31878,30510,27290,36565],
+      "Information Technology": [4936,4893,5288,7317,7209,6431,7020,7515,7891,8290,9112,9518,10293,12389,14723,17081,18747,20173,24549],
+      "Law": [1999,2013,2421,2693,2926,3047,3263,3310,3385,3328,3355,3466,3484,3800,3843,4050,4130,4322,4470],
+      "Mass Communication": [1709,1822,1867,1829,1770,1775,1779,1798,1814,1880,2082,2049,2008,2042,1992,1915,1922,1853,1782],
+      "Medicine": [2279,2384,2419,2512,2576,2628,2777,2885,3138,3335,3511,3796,3982,4200,4253,4463,4594,4833,4678],
+      "Natural, Physical & Mathematical Sciences": [13414,15335,16583,17861,19489,19777,18944,19119,19621,19692,19730,19713,18026,17533,16896,15962,16720,16370,8273],
+      "Services": [282,398,528,611,609,1544,2182,2642,2794,1837,1921,1704,1745,1745,1728,1978,2194,2306,2666]
+    };
+
+    // Subset for selected chart
+    const enrollmentDataSelected = {
+      "Engineering Sciences": enrollmentDataAll["Engineering Sciences"],
+      "Humanities & Social Sciences": enrollmentDataAll["Humanities & Social Sciences"],
+      "Natural, Physical & Mathematical Sciences": enrollmentDataAll["Natural, Physical & Mathematical Sciences"],
+      "Business & Administration": enrollmentDataAll["Business & Administration"],
+      "Accountancy": enrollmentDataAll["Accountancy"],
+      "Information Technology": enrollmentDataAll["Information Technology"],
+      "Architecture, Building & Real Estate": enrollmentDataAll["Architecture, Building & Real Estate"],
+      "Health Sciences": enrollmentDataAll["Health Sciences"],
+      "Education": enrollmentDataAll["Education"]
+    };
+
+    // Policy data used for highlighting in the chart
+    const policiesByField = {
+      "Engineering Sciences": [
+        { year: 2001, policy: "Engineering Accreditation Board" },
+        { year: 2016, policy: "Research, Innovation and Enterprise Plan 2020" },
+        { year: 2014, policy: "Smart Nation Initiative" },
+        { year: 2024, policy: "Smart Nation 2.0" }
+      ],
+      "Humanities & Social Sciences": [
+        { year: 2016, policy: "Social Science Research Council (SSRC) Initiative" },
+        { year: 2019, policy: "Singapore Bicentennial Initiative" }
+      ],
+      "Natural, Physical & Mathematical Sciences": [
+        { year: 2000, policy: "National Science and Technology Plan" },
+        { year: 2007, policy: "Research Centres of Excellence (RCE) Initiative" },
+        { year: 2016, policy: "Research, Innovation and Enterprise Plan 2020" }
+      ],
+      "Business & Administration": [
+        { year: 2002, policy: "Global Schoolhouse Initiative" },
+        { year: 2015, policy: "SkillsFuture Initiative" }
+      ],
+      "Accountancy": [
+        { year: 2013, policy: "Singapore Qualification Programme (Singapore QP)" },
+        { year: 2016, policy: "SkillsFuture Study Award (Accountancy Sector)" }
+      ],
+      "Information Technology": [
+        { year: 2006, policy: "Intelligent Nation 2015 (iN2015) Masterplan" },
+        { year: 2014, policy: "Smart Nation Initiative" },
+        { year: 2024, policy: "Smart Nation 2.0" },
+        { year: 2018, policy: "Digital Economy Framework for Action" }
+      ],
+      "Architecture, Building & Real Estate": [
+        { year: 2005, policy: "Green Mark Scheme" },
+        { year: 2017, policy: "Construction Industry Transformation Map" },
+        { year: 2022, policy: "Built Environment Industry Transformation Map 2025" }
+      ],
+      "Health Sciences": [
+        { year: 2000, policy: "Biomedical Sciences Initiative (Phase I)" },
+        { year: 2006, policy: "Biomedical Sciences Initiative (Phase II)" },
+        { year: 2017, policy: "Healthcare Industry Transformation Map" },
+        { year: 2017, policy: "National Precision Medicine Strategy" }
+      ],
+      "Education": [
+        { year: 2005, policy: "Teach Less, Learn More Initiative" },
+        { year: 2015, policy: "SkillsFuture Initiative" },
+        { year: 2019, policy: "National Institute of Early Childhood Development" }
+      ]
+    };
+
+    /******************************************************
+     * 2) Create All Courses Chart (Top)
+     ******************************************************/
+    function createAllChart() {
+      const colorsAll = [
+        "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4",
+        "#42d4f4", "#f032e6", "#bfef45", "#fabebe", "#469990", "#e6beff",
+        "#9A6324", "#800000", "#808000"
+      ];
+      const datasetsAll = Object.keys(enrollmentDataAll).map((course, i) => ({
+        label: course,
+        data: enrollmentDataAll[course],
+        borderColor: colorsAll[i % colorsAll.length],
+        backgroundColor: colorsAll[i % colorsAll.length],
+        fill: false,
+        tension: 0.1
+      }));
+      const ctxAll = document.getElementById("allChart").getContext("2d");
+      new Chart(ctxAll, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: datasetsAll
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "All Courses Enrollment Trends (2005–2023)"
+            },
+            tooltip: {
+              callbacks: {
+                label: context => `${context.dataset.label} - ${context.label}: ${context.parsed.y}`
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: "Enrollment" }
+            },
+            x: {
+              title: { display: true, text: "Year" }
+            }
+          }
+        }
+      });
+    }
+
+    /******************************************************
+     * 3) Create Selected Courses Chart (Bottom)
+     ******************************************************/
+    const colorsSelected = [
+      "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231",
+      "#911eb4", "#42d4f4", "#f032e6", "#bfef45"
+    ];
+    let fullSelectedDatasets = Object.keys(enrollmentDataSelected).map((course, i) => ({
+      label: course,
+      data: enrollmentDataSelected[course],
+      borderColor: colorsSelected[i % colorsSelected.length],
+      backgroundColor: colorsSelected[i % colorsSelected.length],
+      fill: false,
+      tension: 0.1
+    }));
+
+    function createSelectedChart() {
+      const ctxSelected = document.getElementById("selectedChart").getContext("2d");
+      window.selectedChart = new Chart(ctxSelected, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: fullSelectedDatasets
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Selected Courses Enrollment Trends (2005–2023)"
+            },
+            tooltip: {
+              callbacks: {
+                label: context => `${context.dataset.label} - ${context.label}: ${context.parsed.y}`
+              }
+            },
+            annotation: {
+              annotations: {}
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              min: 0,
+              max: 40000,
+              title: { display: true, text: "Enrollment" }
+            },
+            x: {
+              title: { display: true, text: "Year" }
+            }
+          }
+        }
+      });
+    }
+
+    /******************************************************
+     * 4) Filter Function for the Selected Chart
+     ******************************************************/
+    function filterSelectedChart(courseName) {
+      // Filter the datasets based on the selected course
+      if (courseName === "All") {
+        window.selectedChart.data.datasets = fullSelectedDatasets;
+      } else {
+        window.selectedChart.data.datasets = fullSelectedDatasets.filter(ds => ds.label === courseName);
+      }
+      
+      // Build new annotation objects based on the displayed courses
+      const newAnnotations = {};
+      let annotationIndex = 1;
+
+      // For each displayed course (dataset), find the relevant policies and add a highlight
+      window.selectedChart.data.datasets.forEach(ds => {
+        const fieldName = ds.label;
+        if (policiesByField[fieldName]) {
+          policiesByField[fieldName].forEach(policyObj => {
+            const y = policyObj.year;
+            // Only highlight if the policy's year is within our chart range (2005–2023)
+            if (y >= 2005 && y <= 2023) {
+              // Find the index of the year in our labels array
+              const yearIndex = labels.indexOf(y);
+              if (yearIndex !== -1) {
+                // Create a "box" annotation around this index
+                newAnnotations["anno" + annotationIndex] = {
+                  type: 'box',
+                  xMin: yearIndex - 0.4,
+                  xMax: yearIndex + 0.4,
+                  yMin: 0,
+                  yMax: 40000,
+                  backgroundColor: 'rgba(128,128,128,0.2)', // grey with low opacity
+                  borderWidth: 0,
+                  label: {
+                    display: true,
+                    content: policyObj.policy,
+                    position: 'center',
+                    rotation: -90, // or 0 if you want horizontal text
+                    color: 'black',
+                    backgroundColor: 'rgba(255,255,255,0.7)',
+                    font: {
+                      size: 12,
+                      style: 'italic'
+                    }
+                  }
+                };
+                annotationIndex++;
+              }
+            }
+          });
+        }
+      });
+
+      // Update the annotation plugin config
+      window.selectedChart.config.options.plugins.annotation.annotations = newAnnotations;
+      
+      // Update the chart
+      window.selectedChart.update();
+    }
+
+    /******************************************************
+     * 5) Create Both Charts on Page Load
+     ******************************************************/
+    createAllChart();
+    createSelectedChart();
+  </script>
+</body>
+</html>
