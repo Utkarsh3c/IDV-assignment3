@@ -22,10 +22,14 @@
       background: #2e2e2e; /* Dark background */
       color: #fff;         /* White text */
     }
-    h1, h2 {
+    header {
       text-align: center;
-      margin-bottom: 15px;
-      color: #fff;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid #444;
+    }
+    header h1, header h2, header p {
+      margin-bottom: 10px;
     }
     /* Container for the ranking chart (bump chart) */
     #rankingChartContainer {
@@ -70,10 +74,43 @@
     .course-button:hover {
       background: #666;
     }
+    /* Table styling for the innovation table */
+    #innovationTable {
+      margin: 30px auto;
+      width: 100%;
+      border-collapse: collapse;
+      background: none;
+      color: #fff;
+    }
+    #innovationTable th, #innovationTable td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: left;
+    }
+    #innovationTable th {
+      background: none;
+      font-weight: bold;
+    }
+    /* Footer styling for source information */
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+    }
+    footer a {
+      color: #fff;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1>Enrollment Trends (2005–2023)</h1>
+  <header>
+    <h1>Enrollment Trends (2005–2023)</h1>
+    <h2>IDV Assignment 3</h2>
+    <p><strong>Name:</strong> Utkarsh Chaudhary</p>
+    <p><strong>Hypothesis:</strong> Over the past two decades, educational institutions have adapted their course offerings to reflect rapid changes in industry standards, technological advancements, and shifting job market needs. In our triangulation analysis spanning 2003–2023, I compared curriculum choices against industry trends and job availability. This approach not only confirmed long‐standing subjects but also revealed new sectors and emerging companies that are influencing course content today.</p>
+  </header>
   
   <!-- 1) All Courses Enrollment Chart (optional) -->
   <h2>All Courses Enrollment Trends</h2>
@@ -421,5 +458,326 @@
     createRankingChart();
     updateButtons();
   </script>
+  
+  <!-- Innovation Table -->
+  <table id="innovationTable">
+    <thead>
+      <tr>
+        <th>Industry</th>
+        <th>Big Company</th>
+        <th>Year</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Accountancy</td>
+        <td>Intuit (QuickBooks Online – cloud accounting)</td>
+        <td>2006</td>
+      </tr>
+      <tr>
+        <td>Accountancy</td>
+        <td>AppZen (AI-driven invoice/fraud automation)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Accountancy</td>
+        <td>UiPath (RPA for repetitive accounting tasks)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Accountancy</td>
+        <td>Microsoft (Power BI – real-time analytics dashboards)</td>
+        <td>2015+</td>
+      </tr>
+      <tr>
+        <td>Architecture, Building & Real Estate</td>
+        <td>Autodesk (BIM via Revit)</td>
+        <td>2002</td>
+      </tr>
+      <tr>
+        <td>Architecture, Building & Real Estate</td>
+        <td>Winsun (3D printing in construction)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Architecture, Building & Real Estate</td>
+        <td>Siemens (Smart building systems and automation)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Architecture, Building & Real Estate</td>
+        <td>LafargeHolcim (Green building materials)</td>
+        <td>2000s+</td>
+      </tr>
+      <tr>
+        <td>Business Administration</td>
+        <td>SAP (Cloud ERP & big data analytics)</td>
+        <td>2008</td>
+      </tr>
+      <tr>
+        <td>Business Administration</td>
+        <td>Zoom (Remote/hybrid work technologies)</td>
+        <td>2020</td>
+      </tr>
+      <tr>
+        <td>Business Administration</td>
+        <td>Salesforce (CRM systems)</td>
+        <td>2005</td>
+      </tr>
+      <tr>
+        <td>Business Administration</td>
+        <td>Automation Anywhere (RPA for back-office tasks)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Dentistry</td>
+        <td>Dentsply Sirona (Digital dentistry & CAD/CAM systems)</td>
+        <td>~2005</td>
+      </tr>
+      <tr>
+        <td>Dentistry</td>
+        <td>3D Systems (3D printing for dental implants)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Dentistry</td>
+        <td>SmileDirectClub (Teledentistry)</td>
+        <td>2020</td>
+      </tr>
+      <tr>
+        <td>Dentistry</td>
+        <td>Pearl (AI diagnostics for imaging)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Education</td>
+        <td>Coursera (MOOCs)</td>
+        <td>2008</td>
+      </tr>
+      <tr>
+        <td>Education</td>
+        <td>Knewton (Adaptive learning software)</td>
+        <td>2012</td>
+      </tr>
+      <tr>
+        <td>Education</td>
+        <td>Google (VR/AR in classrooms, e.g., Expeditions)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Education</td>
+        <td>Duolingo (Gamification & microlearning)</td>
+        <td>2014</td>
+      </tr>
+      <tr>
+        <td>Engineering (Civil & Related Disciplines)</td>
+        <td>DJI (Drones for site surveys)</td>
+        <td>2012</td>
+      </tr>
+      <tr>
+        <td>Engineering (Civil & Related Disciplines)</td>
+        <td>BASF (Self-healing materials research)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Engineering (Civil & Related Disciplines)</td>
+        <td>Siemens (Digital twins for infrastructure)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Engineering (Civil & Related Disciplines)</td>
+        <td>Honeywell (IoT sensors for structural monitoring)</td>
+        <td>2015+</td>
+      </tr>
+      <tr>
+        <td>Fine & Applied Arts</td>
+        <td>Adobe (Digital design tools – Creative Suite)</td>
+        <td>2005</td>
+      </tr>
+      <tr>
+        <td>Fine & Applied Arts</td>
+        <td>Stratasys (3D printing & sculpture)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Fine & Applied Arts</td>
+        <td>OpenSea (NFT & blockchain art marketplace)</td>
+        <td>2021</td>
+      </tr>
+      <tr>
+        <td>Fine & Applied Arts</td>
+        <td>Obscura Digital (Projection mapping & interactive installations)</td>
+        <td>2016+</td>
+      </tr>
+      <tr>
+        <td>Health Sciences</td>
+        <td>Apple (Wearable health trackers – Apple Watch)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Health Sciences</td>
+        <td>Teladoc (Telemedicine platforms)</td>
+        <td>2020</td>
+      </tr>
+      <tr>
+        <td>Health Sciences</td>
+        <td>CRISPR Therapeutics (CRISPR gene editing for personalized medicine)</td>
+        <td>2012</td>
+      </tr>
+      <tr>
+        <td>Health Sciences</td>
+        <td>Atomwise (AI-driven drug discovery)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Humanities & Social Sciences</td>
+        <td>Google (Digital humanities tools, e.g., Google Books)</td>
+        <td>2005</td>
+      </tr>
+      <tr>
+        <td>Humanities & Social Sciences</td>
+        <td>Brandwatch (Big data analysis of social media)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Humanities & Social Sciences</td>
+        <td>Zooniverse (Citizen science platforms)</td>
+        <td>2014</td>
+      </tr>
+      <tr>
+        <td>Humanities & Social Sciences</td>
+        <td>IBM (Automated content analysis using NLP)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Information Technology</td>
+        <td>Amazon (AWS – cloud computing)</td>
+        <td>2006</td>
+      </tr>
+      <tr>
+        <td>Information Technology</td>
+        <td>OpenAI (AI & ChatGPT)</td>
+        <td>2022</td>
+      </tr>
+      <tr>
+        <td>Information Technology</td>
+        <td>Qualcomm (Pioneering 5G networks)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Information Technology</td>
+        <td>Ethereum (Blockchain solutions for smart contracts)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Law</td>
+        <td>ROSS Intelligence (AI-driven legal research)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Law</td>
+        <td>Relativity (E-discovery & contract automation)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Law</td>
+        <td>Modria (Online dispute resolution)</td>
+        <td>2020</td>
+      </tr>
+      <tr>
+        <td>Law</td>
+        <td>DocuSign (E-signatures & digital contracts)</td>
+        <td>2008</td>
+      </tr>
+      <tr>
+        <td>Mass Communication</td>
+        <td>Facebook (Social media platforms)</td>
+        <td>2004</td>
+      </tr>
+      <tr>
+        <td>Mass Communication</td>
+        <td>Twitch (Live streaming)</td>
+        <td>2013</td>
+      </tr>
+      <tr>
+        <td>Mass Communication</td>
+        <td>Apple (Podcasting platforms – Apple Podcasts)</td>
+        <td>2005</td>
+      </tr>
+      <tr>
+        <td>Mass Communication</td>
+        <td>Netflix (Data-driven content personalization)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Media Arts</td>
+        <td>Weta Digital (Advanced CGI in film, e.g., Avatar)</td>
+        <td>2009</td>
+      </tr>
+      <tr>
+        <td>Media Arts</td>
+        <td>OpenAI (AI-generated art, DALL·E)</td>
+        <td>2022</td>
+      </tr>
+      <tr>
+        <td>Media Arts</td>
+        <td>Vicon (Motion capture technology)</td>
+        <td>2014</td>
+      </tr>
+      <tr>
+        <td>Media Arts</td>
+        <td>Industrial Light & Magic (Virtual production techniques)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Natural, Physical & Mathematical Sciences</td>
+        <td>LIGO (Gravitational wave detection collaboration)</td>
+        <td>2015</td>
+      </tr>
+      <tr>
+        <td>Natural, Physical & Mathematical Sciences</td>
+        <td>EHT Collaboration (First image of a black hole)</td>
+        <td>2019</td>
+      </tr>
+      <tr>
+        <td>Natural, Physical & Mathematical Sciences</td>
+        <td>CRISPR Therapeutics (CRISPR gene editing)</td>
+        <td>2012</td>
+      </tr>
+      <tr>
+        <td>Natural, Physical & Mathematical Sciences</td>
+        <td>IBM (AI in weather forecasting)</td>
+        <td>2018</td>
+      </tr>
+      <tr>
+        <td>Services</td>
+        <td>Uber (On-demand service platforms)</td>
+        <td>2009</td>
+      </tr>
+      <tr>
+        <td>Services</td>
+        <td>LivePerson (AI-driven customer service chatbots)</td>
+        <td>2020</td>
+      </tr>
+      <tr>
+        <td>Services</td>
+        <td>Amazon (Self-checkout & retail automation – Amazon Go)</td>
+        <td>2016</td>
+      </tr>
+      <tr>
+        <td>Services</td>
+        <td>Savioke (Robotics in hospitality)</td>
+        <td>2018</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- Footer with source information -->
+  <header>
+    <p>
+      <em>Source: Ministry of Education. (2019). Intake, Enrolment and Graduates of Universities by Course (2024) [Dataset]. data.gov.sg. Retrieved March 26, 2025 from 
+      <a href="https://data.gov.sg/datasets/d_6b264092cd066c55d8e2db9e68e7ffdb/view" target="_blank">data.gov.sg</a>.</em>
+    </p>
+</header>
 </body>
 </html>
